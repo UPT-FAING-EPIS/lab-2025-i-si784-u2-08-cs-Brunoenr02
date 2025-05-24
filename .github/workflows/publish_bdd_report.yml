@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build-test-report:
+  build-and-publish-bdd-report:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -24,11 +23,17 @@ jobs:
       - name: Build solution
         run: dotnet build Calculator/Calculator.sln --configuration Release --no-restore
 
+      - name: Run tests
+        run: dotnet test Calculator/Calculator.Domain.Tests/Calculator.Domain.Tests.csproj --configuration Release --logger "trx;LogFileName=test_results.trx" --results-directory Calculator/Calculator.Domain.Tests/TestResults --no-build
+
       - name: Install LivingDoc tool
         run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
 
       - name: Add .NET tools to PATH
-        run: echo "~/.dotnet/tools" >> $GITHUB_PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Check LivingDoc installation
+        run: dotnet tool list -g
 
       - name: Generate LivingDoc report
         run: dotnet livingdoc test-assembly Calculator/Calculator.Domain.Tests/bin/Release/net8.0/Calculator.Domain.Tests.dll -t Calculator/Calculator.Domain.Tests/TestResults/test_results.trx -o Calculator/CalculatorTests.html
@@ -39,23 +44,17 @@ jobs:
           name: bdd-report
           path: Calculator/CalculatorTests.html
 
-  deploy:
-    needs: build-test-report
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Download BDD report artifact
         uses: actions/download-artifact@v4
         with:
           name: bdd-report
+          path: Calculator/
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Deploy BDD report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: Calculator
           publish_branch: gh-pages
           keep_files: true
           destination_dir: bdd-report
