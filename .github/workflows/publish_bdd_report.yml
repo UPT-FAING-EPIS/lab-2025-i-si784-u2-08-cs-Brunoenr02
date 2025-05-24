@@ -1,0 +1,58 @@
+name: Actividad03 - Reporte BDD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-test-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Calculator/Calculator.sln
+
+      - name: Build solution
+        run: dotnet build Calculator/Calculator.sln --configuration Release --no-restore
+
+      - name: Run tests and generate LivingDoc report
+        run: |
+          dotnet tool restore
+          dotnet test Calculator/Calculator.Domain.Tests/Calculator.Domain.Tests.csproj --no-build --logger "trx;LogFileName=test_results.trx"
+          dotnet livingdoc test-assembly Calculator/Calculator.Domain.Tests/bin/Release/net8.0/Calculator.Domain.Tests.dll -t TestExecution/test_results.trx -o Calculator/CalculatorTests.html
+
+      - name: Upload BDD report artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: bdd-report
+          path: Calculator/CalculatorTests.html
+
+  deploy:
+    needs: build-test-report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download BDD report artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: bdd-report
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          keep_files: true
+          destination_dir: bdd-report
