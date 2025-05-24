@@ -31,7 +31,7 @@ jobs:
           dotnet livingdoc test-assembly Calculator/Calculator.Domain.Tests/bin/Release/net8.0/Calculator.Domain.Tests.dll -t TestExecution/test_results.trx -o Calculator/CalculatorTests.html
 
       - name: Upload BDD report artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bdd-report
           path: Calculator/CalculatorTests.html
@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download BDD report artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bdd-report
 
