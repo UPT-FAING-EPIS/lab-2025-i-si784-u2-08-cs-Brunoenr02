@@ -11,7 +11,7 @@
   },
   "index.html": {
     "href": "index.html",
-    "title": "This is the HOMEPAGE. | Calculator",
-    "summary": "This is the HOMEPAGE. Refer to Markdown for how to write markdown files. Quick Start Notes: Add images to the images folder if the file is referencing an image."
+    "title": "Documentación del Proyecto BankDomain | Calculator",
+    "summary": "Documentación del Proyecto BankDomain Bienvenido a la documentación del Calculator. Recursos Ver Reporte de Cobertura Reporte Cobertura Markdown Documentacion de Clases, atributos y métodos Diagrama de Clases Para más detalles sobre la sintaxis Markdown, consulta Markdown Guide."
   }
 }
