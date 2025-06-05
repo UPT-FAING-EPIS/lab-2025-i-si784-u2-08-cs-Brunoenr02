@@ -2,10 +2,19 @@
 _layout: landing
 ---
 
-# This is the **HOMEPAGE**.
+# Documentación del Proyecto BankDomain
 
-Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
+Bienvenido a la documentación del **Calculator**.
 
-## Quick Start Notes:
+## Recursos
 
-1. Add images to the *images* folder if the file is referencing an image.
+- [Ver Reporte de Cobertura](Cobertura/index.html)
+
+- [Reporte Cobertura Markdown](Cobertura/SummaryGithub.md)
+
+- [Documentacion de Clases, atributos y métodos](docs/Calculator.Domain.html)
+
+- [Diagrama de Clases](clases.md)
+
+
+Para más detalles sobre la sintaxis Markdown, consulta [Markdown Guide](http://daringfireball.net/projects/markdown/).
