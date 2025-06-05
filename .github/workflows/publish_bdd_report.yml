@@ -1,60 +1,41 @@
-name: Actividad03 - ReporteBDD
-
-on:
-  push:
-    branches:
-      - main
+name: Actividad03 - Generar Reporte BDD con SpecFlow+ LivingDoc 
+env:
+  DOTNET_VERSION: '8.0' # la versión de .NET
+on: push
 
 jobs:
-  build-and-publish-bdd-report:
+  test-and-publish-coverage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore Calculator/Calculator.sln
-
-      - name: Build solution
-        run: dotnet build Calculator/Calculator.sln --configuration Release --no-restore
-
-      - name: Run tests
-        run: dotnet test Calculator/Calculator.Domain.Tests/Calculator.Domain.Tests.csproj --configuration Release --logger "trx;LogFileName=test_results.trx" --results-directory Calculator/Calculator.Domain.Tests/TestResults --no-build
-
-      - name: Install LivingDoc tool
-        run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
-
-      - name: Add .NET tools to PATH
-        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-
-      - name: Check LivingDoc installation
-        run: dotnet tool list -g
-
-      - name: Generate LivingDoc report
-        run: dotnet livingdoc test-assembly Calculator/Calculator.Domain.Tests/bin/Release/net8.0/Calculator.Domain.Tests.dll -t Calculator/Calculator.Domain.Tests/TestResults/test_results.trx -o Calculator/CalculatorTests.html
-
-      - name: Upload BDD report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bdd-report
-          path: Calculator/CalculatorTests.html
-
-      - name: Download BDD report artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: bdd-report
-          path: Calculator/
-
-      - name: Deploy BDD report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: Calculator
-          publish_branch: gh-pages
-          keep_files: true
-          destination_dir: bdd-report
+    
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Configurando la versión de NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies & Run tests with coverage
+      run: |
+        cd Calculator
+        dotnet restore
+        dotnet test --collect:"XPlat Code Coverage"
+    
+    # living install
+    - name: Install living Specflow +LivingDoc
+      run: dotnet tool install --global SpecFlow.Plus.LivingDoc.CLI
+    
+    - name: Generate bdd Report
+      run: |
+        cd Calculator
+        mkdir ReporteBDD
+        livingdoc test-assembly ./Calculator.Domain.Tests/bin/Debug/net8.0/Calculator.Domain.Tests.dll -t ./Calculator.Domain.Tests/bin/Debug/net8.0/TestExecution.json -o ReporteBDD/index.html
+    
+    - name: Deploy bdd report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: Calculator/ReporteBDD
+        destination_dir: ReporteBDD
+        keep_files: true 
